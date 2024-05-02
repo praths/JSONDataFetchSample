@@ -8,7 +8,6 @@
 import UIKit
 
 extension UIViewController {
-    
     var presenterVC: UIViewController {
         parent?.presenterVC ?? parent ?? self
     }
@@ -17,6 +16,13 @@ extension UIViewController {
         let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .default))
         presenterVC.showDetailViewController(alert, sender: self)
+    }
+}
+
+extension UITableViewCell {
+    func configure(_ vm: ItemViewModel) {
+        textLabel?.text = "\(vm.id)"
+        detailTextLabel?.text = vm.title
     }
 }
 

@@ -8,31 +8,19 @@
 import UIKit
 
 class PostDetailsViewController: UITableViewController {
-    var service: ItemsService?
-    private var items = [ItemViewModel]()
+    
+    var items = [ItemViewModel](){
+        didSet {
+            reloadData()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let start = CFAbsoluteTimeGetCurrent()
-        Task {
-            await service?.loadItems(completion: handleAPIResult)
-        }
-        let diff = CFAbsoluteTimeGetCurrent() - start
-        print("Took \(diff) seconds")
-        
-        
     }
     
-    
-    
-    private func handleAPIResult(_ result: Result<[ItemViewModel], Error>) {
-        switch result {
-        case let .success(items):
-            self.items = items
-            self.tableView.reloadData()
-        case let .failure(error):
-                self.showError(error: error)
-        }
+    private func reloadData() {
+        self.tableView.reloadData()
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {

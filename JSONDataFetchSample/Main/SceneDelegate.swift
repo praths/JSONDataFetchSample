@@ -59,10 +59,11 @@ extension SceneDelegate {
     private func makePostsList() -> PostListViewController {
         let vc = PostListViewController()
         vc.title = "Posts"
-        let api = PostsAPIItemsServiceAdapter(api: PostsAPI.shared,
-                                              select: { [weak vc] item in
-            vc?.select(post: item)
-        })
+        let api = PostsAPIItemsServiceAdapter(
+            api: PostsAPI.shared,
+            select: { [weak vc] item in
+                vc?.select(post: item)
+            })
         vc.service = api
         return vc
     }
