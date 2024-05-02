@@ -7,19 +7,20 @@
 
 import Foundation
 
-struct CommentsAPIItemsServiceAdapter: ItemsService {
+struct CommentsAPIItemsServiceAdapter {
     let api: CommentsAPI
     
-    func loadItems(page: Int, limit: Int, postId: String, completion: @escaping (Result<[ItemViewModel], Error>) -> Void) {
-        api.loadComments(postId: "\(postId)") { result in
-            DispatchQueue.mainAsyncIfNeeded {
-                completion(result.map{ items in
-                    return items.map { item in
-                        ItemViewModel(comment : item)
-                    }
-                })
+    func loadItems(postId: String, completion: @escaping (Result<[ItemViewModel], Error>) -> Void) {
+        Task {
+            await api.loadComments(postId: "\(postId)") { result in
+                DispatchQueue.mainAsyncIfNeeded {
+                    completion(result.map{ items in
+                        return items.map { item in
+                            ItemViewModel(comment : item)
+                        }
+                    })
+                }
             }
         }
-        
     }
 }

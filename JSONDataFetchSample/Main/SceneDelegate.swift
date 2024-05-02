@@ -57,14 +57,40 @@ extension SceneDelegate {
     }
     
     private func makePostsList() -> PostListViewController {
-        let vc = PostListViewController()
-        vc.title = "Posts"
-        let api = PostsAPIItemsServiceAdapter(
+        let postListVC = PostListViewController()
+        postListVC.title = "Posts"
+        var postsAPIAdapter = PostsAPIItemsServiceAdapter(
+            page: 1,
+            limit: 15,
             api: PostsAPI.shared,
-            select: { [weak vc] item in
-                vc?.select(post: item)
+            select: { [weak postListVC] item in
+                postListVC?.select(post: item)
             })
-        vc.service = api
-        return vc
+        let commentsAPIAdapter = CommentsAPIItemsServiceAdapter(api: CommentsAPI.shared)
+        postsAPIAdapter.memoizedLoadComments = memoize(commentsAPIAdapter.loadItems)
+        postListVC.service = postsAPIAdapter
+        return postListVC
+    }
+    
+    private func memoize<Input: Hashable, Output>(_ function: @escaping (Input, @escaping ((Result<[Output], Error>) -> Void)) -> Void) -> (Input, @escaping ((Result<[Output], Error>) -> Void)) -> Void
+    {
+        var cachedComments: [Input : [Output]?] = [ : ]
+        
+        return { (postId: Input, callback: @escaping ((Result<[Output], Error>) -> Void)) in
+            if let comments = cachedComments[postId] as? [Output] {
+                callback(.success(comments))
+                return
+            }
+            
+            function(postId) { result in
+                switch result {
+                case .success(let comments):
+                    cachedComments[postId] = comments
+                    callback(.success(comments))
+                case .failure(let error):
+                    callback(.failure(error))
+                }
+            }
+        }
     }
 }

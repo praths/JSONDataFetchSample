@@ -25,6 +25,7 @@
 		84CB8EBC2BE408CA008B40AF /* PostsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CB8EBB2BE408CA008B40AF /* PostsAPI.swift */; };
 		84CB8EBF2BE409A3008B40AF /* CommentsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CB8EBE2BE409A3008B40AF /* CommentsAPI.swift */; };
 		84CB8EC12BE409BE008B40AF /* CommentsAPIItemsServiceAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CB8EC02BE409BE008B40AF /* CommentsAPIItemsServiceAdapter.swift */; };
+		84CB8EC42BE41C16008B40AF /* ItemsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CB8EC32BE41C16008B40AF /* ItemsService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		84CB8EBB2BE408CA008B40AF /* PostsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostsAPI.swift; sourceTree = "<group>"; };
 		84CB8EBE2BE409A3008B40AF /* CommentsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPI.swift; sourceTree = "<group>"; };
 		84CB8EC02BE409BE008B40AF /* CommentsAPIItemsServiceAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIItemsServiceAdapter.swift; sourceTree = "<group>"; };
+		84CB8EC32BE41C16008B40AF /* ItemsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 		846E4D552BDCFC2D00D9DFC3 /* JSONDataFetchSample */ = {
 			isa = PBXGroup;
 			children = (
+				84CB8EC22BE41C00008B40AF /* Protocols */,
 				84CB8EBD2BE4093F008B40AF /* Main */,
 				84CB8EBA2BE408BA008B40AF /* Networking */,
 				84CB8EB72BE4088E008B40AF /* APIAdapters */,
@@ -200,6 +203,14 @@
 				846E4D582BDCFC2D00D9DFC3 /* SceneDelegate.swift */,
 			);
 			path = Main;
+			sourceTree = "<group>";
+		};
+		84CB8EC22BE41C00008B40AF /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				84CB8EC32BE41C16008B40AF /* ItemsService.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -337,6 +348,7 @@
 				846E4D5B2BDCFC2D00D9DFC3 /* PostListViewController.swift in Sources */,
 				846E4D8F2BDD105600D9DFC3 /* PostDetailsViewController.swift in Sources */,
 				846E4D8D2BDD0E0E00D9DFC3 /* Helpers.swift in Sources */,
+				84CB8EC42BE41C16008B40AF /* ItemsService.swift in Sources */,
 				846E4D912BDD459600D9DFC3 /* Comment.swift in Sources */,
 				84CB8EBC2BE408CA008B40AF /* PostsAPI.swift in Sources */,
 				84CB8EB92BE408A4008B40AF /* PostsAPIItemsServiceAdapter.swift in Sources */,

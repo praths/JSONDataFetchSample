@@ -21,8 +21,8 @@ extension UIViewController {
 
 extension UITableViewCell {
     func configure(_ vm: ItemViewModel) {
-        textLabel?.text = "\(vm.id)"
-        detailTextLabel?.text = vm.title
+        textLabel?.text = vm.title
+        detailTextLabel?.text = vm.subtitle
     }
 }
 
@@ -35,3 +35,5 @@ extension DispatchQueue {
         }
     }
 }
+
+struct InValidURL: Error {}

@@ -7,8 +7,6 @@
 
 import Foundation
 
-struct InValidURL: Error {}
-
 class PostsAPI {
     static var shared = PostsAPI()
     

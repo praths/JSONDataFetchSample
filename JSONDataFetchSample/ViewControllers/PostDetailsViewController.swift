@@ -8,21 +8,52 @@
 import UIKit
 
 class PostDetailsViewController: UITableViewController {
-    
+    var service: ItemsService?
     var items = [ItemViewModel](){
         didSet {
             reloadData()
         }
     }
+   
+    var post: Post?
+    
+    init(post: Post) {
+        self.post = post
+       super.init(nibName: nil, bundle: nil)
+       
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let start = CFAbsoluteTimeGetCurrent()
+        Task {
+            service?.memoizedLoadComments?("\(post?.id ?? 0)") { [weak self]  result in
+                self?.handleAPIResult(result)
+            }
+        }
+        let diff = CFAbsoluteTimeGetCurrent() - start
+        print("Took \(diff) seconds")
+    }
+    
+    private func handleAPIResult(_ result: Result<[ItemViewModel], Error>) {
+        switch result {
+        case let .success(items):
+            self.items += items
+        case let .failure(error):
+            self.showError(error: error)
+        }
     }
     
     private func reloadData() {
         self.tableView.reloadData()
     }
-    
+}
+
+extension PostDetailsViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
         1
     }
