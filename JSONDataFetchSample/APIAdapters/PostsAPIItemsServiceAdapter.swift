@@ -15,6 +15,8 @@ struct PostsAPIItemsServiceAdapter: ItemsService {
     
     var memoizedLoadComments: ((String, @escaping ((Result<[ItemViewModel], Error>) -> Void)) -> Void)?
     
+    var memoizedLoadUser: ((String, @escaping ((Result<[ItemViewModel], Error>) -> Void)) -> Void)?
+    
     func loadIntialPage(completion: @escaping (Result<[ItemViewModel], Error>) -> Void) {
         loadItems(page: page, limit: limit, completion: completion)
     }

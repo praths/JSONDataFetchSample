@@ -14,29 +14,43 @@ class PostDetailsViewController: UITableViewController {
             reloadData()
         }
     }
-   
+    
     var post: Post?
     
-    init(post: Post) {
-        self.post = post
-       super.init(nibName: nil, bundle: nil)
-       
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
+    private lazy var spinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.large)
+        spinner.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        spinner.backgroundColor = .white
+        spinner.startAnimating()
+        spinner.center = self.tableView.center
+        spinner.hidesWhenStopped = true
+        return spinner
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let start = CFAbsoluteTimeGetCurrent()
+        configureTableView()
+        loadComments()
+    }
+    
+    private func configureTableView() {
+        self.tableView.separatorColor = .clear
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = 300
+        self.tableView.backgroundView = spinner
+    }
+    
+    private func loadComments() {
+        let start = Date()
         Task {
             service?.memoizedLoadComments?("\(post?.id ?? 0)") { [weak self]  result in
+                let seconds = Date().calculateTimeDifferenceInSeconds(from: start)
+                print("Took \(String(format: "%.3f", seconds)) seconds")
+                
+                self?.tableView.backgroundView = nil
                 self?.handleAPIResult(result)
             }
         }
-        let diff = CFAbsoluteTimeGetCurrent() - start
-        print("Took \(diff) seconds")
     }
     
     private func handleAPIResult(_ result: Result<[ItemViewModel], Error>) {
@@ -49,7 +63,9 @@ class PostDetailsViewController: UITableViewController {
     }
     
     private func reloadData() {
-        self.tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
 }
 
@@ -63,10 +79,12 @@ extension PostDetailsViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCell") as? CommentTableViewCell ?? CommentTableViewCell(style: .default, reuseIdentifier: "CommentCell")
         let item = items[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "ItemCell")
-        cell.configure(item)
+        cell.configure(item, service: nil)
+        cell.setConstraints(tableViewWidth: tableView.bounds.width)
         return cell
+        
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

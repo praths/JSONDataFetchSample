@@ -19,10 +19,37 @@ extension UIViewController {
     }
 }
 
-extension UITableViewCell {
-    func configure(_ vm: ItemViewModel) {
-        textLabel?.text = vm.title
-        detailTextLabel?.text = vm.subtitle
+extension UITableViewController {
+    func showSpinnerAtTheBottom() {
+        guard let spinner = tableView.tableFooterView as? UIActivityIndicatorView
+        else
+        {
+            let spinner = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
+            spinner.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 44)
+            spinner.startAnimating()
+            tableView.tableFooterView = spinner
+            tableView.tableFooterView?.isHidden = false
+            return
+        }
+        
+        spinner.startAnimating()
+        tableView.tableFooterView?.isHidden = false
+    }
+    
+    func hideSpinnerAtTheBottom() {
+        if let spinner = tableView.tableFooterView as? UIActivityIndicatorView {
+            spinner.stopAnimating()
+            tableView.tableFooterView?.isHidden = true
+        }
+    }
+}
+
+extension Date {
+    func calculateTimeDifferenceInSeconds(from date: Date) -> Double {
+        let nanoseconds = Calendar.current.dateComponents([.nanosecond], from: date, to: self).nanosecond ?? 0
+        let milliseconds: Double = round(Double(nanoseconds)/Double(1000000))
+        let seconds: Double = Double(milliseconds)/Double(1000)
+        return seconds
     }
 }
 

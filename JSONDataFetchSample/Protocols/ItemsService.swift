@@ -9,6 +9,7 @@ import Foundation
 
 protocol ItemsService {
     var memoizedLoadComments: ((String, @escaping ((Result<[ItemViewModel], Error>) -> Void)) -> Void)? { get set }
+    var memoizedLoadUser: ((String, @escaping ((Result<[ItemViewModel], Error>) -> Void)) -> Void)? { get set }
     
     func loadIntialPage(completion: @escaping (Result<[ItemViewModel], Error>) -> Void)
     func shouldFetchNextPage(row: Int) -> Bool

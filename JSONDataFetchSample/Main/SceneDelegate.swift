@@ -17,7 +17,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = makeNav(for: makePostsList())
+        if let postListVC = makePostsList() {
+            window?.rootViewController = makeNav(for: postListVC)
+        }
         window?.makeKeyAndVisible()
     }
     
@@ -56,37 +58,42 @@ extension SceneDelegate {
         return UINavigationController(rootViewController: vc)
     }
     
-    private func makePostsList() -> PostListViewController {
-        let postListVC = PostListViewController()
-        postListVC.title = "Posts"
-        var postsAPIAdapter = PostsAPIItemsServiceAdapter(
-            page: 1,
-            limit: 15,
-            api: PostsAPI.shared,
-            select: { [weak postListVC] item in
-                postListVC?.select(post: item)
-            })
-        let commentsAPIAdapter = CommentsAPIItemsServiceAdapter(api: CommentsAPI.shared)
-        postsAPIAdapter.memoizedLoadComments = memoize(commentsAPIAdapter.loadItems)
-        postListVC.service = postsAPIAdapter
-        return postListVC
+    private func makePostsList() -> PostListViewController? {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let postListVC = storyboard.instantiateViewController(withIdentifier: "PostListVC") as? PostListViewController {
+            postListVC.title = "Posts"
+            var postsAPIAdapter = PostsAPIItemsServiceAdapter(
+                page: 1,
+                limit: 10,
+                api: PostsAPI.shared,
+                select: { [weak postListVC] item in
+                    postListVC?.select(post: item)
+                })
+            let commentsAPIAdapter = CommentsAPIItemsServiceAdapter(api: CommentsAPI.shared)
+            postsAPIAdapter.memoizedLoadComments = memoize(commentsAPIAdapter.loadItems)
+            let usersAPIAdapter = UsersAPIItemsServiceAdapter(api: UsersAPI.shared)
+            postsAPIAdapter.memoizedLoadUser = memoize(usersAPIAdapter.loadUser)
+            postListVC.service = postsAPIAdapter
+            return postListVC
+        }
+        return nil
     }
     
     private func memoize<Input: Hashable, Output>(_ function: @escaping (Input, @escaping ((Result<[Output], Error>) -> Void)) -> Void) -> (Input, @escaping ((Result<[Output], Error>) -> Void)) -> Void
     {
-        var cachedComments: [Input : [Output]?] = [ : ]
+        var cachedDict: [Input : [Output]?] = [ : ]
         
-        return { (postId: Input, callback: @escaping ((Result<[Output], Error>) -> Void)) in
-            if let comments = cachedComments[postId] as? [Output] {
-                callback(.success(comments))
+        return { (id: Input, callback: @escaping ((Result<[Output], Error>) -> Void)) in
+            if let data = cachedDict[id] as? [Output] {
+                callback(.success(data))
                 return
             }
             
-            function(postId) { result in
+            function(id) { result in
                 switch result {
-                case .success(let comments):
-                    cachedComments[postId] = comments
-                    callback(.success(comments))
+                case .success(let data):
+                    cachedDict[id] = data
+                    callback(.success(data))
                 case .failure(let error):
                     callback(.failure(error))
                 }

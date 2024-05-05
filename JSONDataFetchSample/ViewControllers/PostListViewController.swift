@@ -17,9 +17,20 @@ class PostListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        service?.loadIntialPage(completion: handleAPIResult)
+        configureTableView()
+        loadPosts()
     }
     
+    private func configureTableView() {
+        self.tableView.separatorColor = .clear
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = 300
+    }
+    
+    private func loadPosts() {
+        service?.loadIntialPage(completion: handleAPIResult)
+    }
+
     private func handleAPIResult(_ result: Result<[ItemViewModel], Error>) {
         switch result {
         case let .success(items):
@@ -30,14 +41,19 @@ class PostListViewController: UITableViewController {
     }
     
     private func reloadData() {
-        self.tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
     
     func select(post: Post) {
-        let postDetailsVC = PostDetailsViewController(post: post)
-        postDetailsVC.title = "Comments"
-        postDetailsVC.service = service
-        self.navigationController?.pushViewController(postDetailsVC, animated: true)
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let postDetailsVC = storyboard.instantiateViewController(withIdentifier: "PostDetailsVC") as? PostDetailsViewController {
+            postDetailsVC.title = "Comments"
+            postDetailsVC.post = post
+            postDetailsVC.service = service
+            self.navigationController?.pushViewController(postDetailsVC, animated: true)
+        }
     }
 }
 
@@ -51,9 +67,10 @@ extension PostListViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell") as? PostTableViewCell ?? PostTableViewCell(style: .default, reuseIdentifier: "PostCell")
         let item = items[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "ItemCell")
-        cell.configure(item)
+        cell.configure(item, service: service)
+        cell.setConstraints(tableViewWidth: tableView.bounds.width)
         return cell
     }
     
@@ -64,7 +81,16 @@ extension PostListViewController {
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if service?.shouldFetchNextPage(row: indexPath.row) ?? false {
-            service?.loadNextPage(completion: handleAPIResult)
+            showSpinnerAtTheBottom()
+            service?.loadNextPage(completion: { [weak self] result in
+                guard let self = self else {
+                    return
+                }
+                self.handleAPIResult(result)
+                DispatchQueue.main.async {
+                    self.hideSpinnerAtTheBottom()
+                }
+            })
         }
     }
 }
